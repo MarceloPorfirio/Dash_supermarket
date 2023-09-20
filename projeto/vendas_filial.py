@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt  # Importe o Matplotlib
+import sys
+print(sys.path)
 
 
 choice = st.sidebar.radio(
