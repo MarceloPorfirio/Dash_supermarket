@@ -1,4 +1,4 @@
-from matplotlib.pyplot import subplots
+# from matplotlib.pyplot import subplots
 import streamlit as st
 import pandas as pd
 
@@ -107,13 +107,13 @@ elif choice == 'Clientes Crediário':
 
         # Defina o tamanho da figura
 
-        # Criar o gráfico de pizza
-        fig, ax = subplots(figsize=(2, 2))
-        ax.pie([percent_members, percent_normal], labels=['Membros', 'Clientes Normais'], autopct='%1.1f%%', startangle=90)
-        ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+        # # Criar o gráfico de pizza
+        # fig, ax = subplots(figsize=(2, 2))
+        # ax.pie([percent_members, percent_normal], labels=['Membros', 'Clientes Normais'], autopct='%1.1f%%', startangle=90)
+        # ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
-        # Exibir o gráfico de pizza no Streamlit
-        st.pyplot(fig)
+        # # Exibir o gráfico de pizza no Streamlit
+        # st.pyplot(fig)
 elif choice == 'Compra Por Gênero':
     # Título do aplicativo
     data = load_data()
