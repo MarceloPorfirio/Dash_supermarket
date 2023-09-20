@@ -1,9 +1,6 @@
+from matplotlib.pyplot import subplots
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt  # Importe o Matplotlib
-import sys
-print(sys.path)
-
 
 choice = st.sidebar.radio(
     label = 'Navegar',
@@ -111,7 +108,7 @@ elif choice == 'Clientes Crediário':
         # Defina o tamanho da figura
 
         # Criar o gráfico de pizza
-        fig, ax = plt.subplots(figsize=(2, 2))
+        fig, ax = subplots(figsize=(2, 2))
         ax.pie([percent_members, percent_normal], labels=['Membros', 'Clientes Normais'], autopct='%1.1f%%', startangle=90)
         ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
