@@ -2,11 +2,12 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import calendar
 
 choice = st.sidebar.radio(
     label = 'Navegar',
     options = ('Inicio','Vendas Filial','Vendas Por Categoria', 
-               'Formas De Pagamento','Clientes Crediário','Compra Por Gênero'),
+               'Formas De Pagamento','Clientes Crediário','Compra Por Gênero','Indicadores Mensais'),
     
 )
 
@@ -150,3 +151,33 @@ elif choice == 'Compra Por Gênero':
     # Exibir os resultados em uma tabela
     st.write("Resultados:")
     st.table(resultados)
+elif choice == 'Indicadores Mensais':
+    with st.container():
+        data = load_data()
+        st.subheader('Indicadores Mensais')
+        # Converter a coluna 'Date' para tipo datetime
+        data['Date'] = pd.to_datetime(data['Date'])
+
+        # Adicionar colunas de mês e ano
+        data['Month'] = data['Date'].dt.month
+        data['Year'] = data['Date'].dt.year
+
+        # Título do aplicativo
+        st.title("Análise de Vendas por Mês")
+
+        # Criar um selectbox para escolher o mês
+        nomes_meses = [calendar.month_name[i] for i in range(1, 13)]
+        mes_selecionado = st.selectbox("Selecione um Mês:", nomes_meses)
+
+        # Mapear o nome do mês de volta para o número do mês
+        mes_numero = {v: k for k, v in enumerate(nomes_meses, start=1)}
+
+        # Filtrar os dados pelo mês selecionado
+        vendas_por_mes = data[data['Month'] == mes_numero[mes_selecionado]]
+
+        # Calcular o valor total das vendas para o mês selecionado
+        total_vendas_mes = vendas_por_mes['Total'].sum()
+
+        # Exibir o valor total das vendas para o mês selecionado
+        st.subheader(f"Total de Vendas para o Mês de {mes_selecionado}:")
+        st.write(f"R${total_vendas_mes:.2f}")
