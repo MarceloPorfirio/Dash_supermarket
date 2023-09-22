@@ -1,6 +1,7 @@
 # from matplotlib.pyplot import subplots
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
 
 choice = st.sidebar.radio(
     label = 'Navegar',
@@ -67,6 +68,9 @@ elif choice == 'Vendas Por Categoria':
         
         # Exibir a tabela com os totais por linha de produtos em português
         st.table(vendas_por_linha)
+        # Gráfico de barras
+        st.subheader('Gráfico')
+        st.bar_chart(vendas_por_linha.set_index('Linha de Produto')['Total'])
 
 elif choice == 'Formas De Pagamento':
     with st.container():
@@ -76,14 +80,14 @@ elif choice == 'Formas De Pagamento':
         
 
         forma_pagamento = vendas.groupby('Payment')['Total'].sum().reset_index()
-        forma_pagamento.rename(columns={'Total':'Total Soma'},inplace=True)
-        forma_pagamento = forma_pagamento.sort_values(by='Total Soma', ascending=False)
-        forma_pagamento['Payment'] = forma_pagamento['Payment'].map({
+        forma_pagamento.rename(columns={'Payment':'Forma de Pagamento'},inplace=True)
+        forma_pagamento = forma_pagamento.sort_values(by='Total', ascending=False)
+        forma_pagamento['Forma de Pagamento'] = forma_pagamento['Forma de Pagamento'].map({
             'Cash': 'Dinheiro',
             'Ewallet': 'Crediário',
             'Credit card': 'Cartão de Crédito'
         })
-
+        st.bar_chart(forma_pagamento['Total'],width=300,height=300)
         st.table(forma_pagamento)
 elif choice == 'Clientes Crediário':
     with st.container():
