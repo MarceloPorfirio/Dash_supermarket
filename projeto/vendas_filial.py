@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import calendar
 import plotly.express as px
+import plotly.graph_objects as go
 # import locale  # Importe o módulo locale
 
 # # Configurar o ambiente local para português do Brasil
@@ -109,20 +110,19 @@ elif choice == 'Clientes Crediário':
         percent_members = (members_count / total_customers) * 100
         percent_normal = (normal_count / total_customers) * 100
 
-        # Criar um gráfico de pizza usando Streamlit
-        st.subheader('Membros ativos vs Possíveis Membros')
-        st.write(f'<font color="blue">Numero de Membros: {members_count}</font>', unsafe_allow_html=True)
-        st.write(f'<font color="orange">Numero de Membros: {normal_count}</font>', unsafe_allow_html=True)
+        
+        # Criar um gráfico de pizza
+        fig = go.Figure(data=[go.Pie(labels=['Membros', 'Clientes Normais'], values=[members_count, normal_count],hole=0.3)])
 
-        # Defina o tamanho da figura
+        # Definir as cores das fatias
+        colors = ['blue', 'orange']
+        fig.update_traces(marker=dict(colors=colors))
 
-        # # Criar o gráfico de pizza
-        # fig, ax = subplots(figsize=(2, 2))
-        # ax.pie([percent_members, percent_normal], labels=['Membros', 'Clientes Normais'], autopct='%1.1f%%', startangle=90)
-        # ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+        # Exibir o gráfico de pizza no Streamlit
+        st.title("Clientes Crediário")
+        st.subheader('Membros Ativos vs Clientes Normais')
+        st.plotly_chart(fig)
 
-        # # Exibir o gráfico de pizza no Streamlit
-        # st.pyplot(fig)
 elif choice == 'Compra Por Gênero':
     # Título do aplicativo
     data = load_data()
@@ -184,8 +184,11 @@ elif choice == 'Indicadores Mensais':
         # Criar um selectbox para escolher o mês
         nomes_meses = [calendar.month_name[i].capitalize() for i in range(1, 13)]  # Nomes dos meses em português
 
-        # Corrigir o nome do mês de março
-        nomes_meses[2] = 'Março'
+        # Modificar os nomes dos meses para portugues
+        nomes_meses = [
+            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+        ]
         mes_selecionado = st.selectbox("Selecione um Mês:", nomes_meses)
 
         # Mapear o nome do mês de volta para o número do mês
@@ -199,4 +202,4 @@ elif choice == 'Indicadores Mensais':
 
         # Exibir o valor total das vendas para o mês selecionado
         st.subheader(f"Total de Vendas para o Mês de {mes_selecionado}:")
-        st.write(f"R$ {total_vendas_mes:.2f}")
+        st.header(f"R$ {total_vendas_mes:,.2f}".replace(',', '_').replace('.', ',').replace('_', '.'))
