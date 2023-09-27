@@ -3,10 +3,10 @@ import streamlit as st
 import pandas as pd
 import calendar
 import plotly.express as px
-import locale  # Importe o módulo locale
+# import locale  # Importe o módulo locale
 
-# Configurar o ambiente local para português do Brasil
-locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
+# # Configurar o ambiente local para português do Brasil
+# locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
 
 choice = st.sidebar.radio(
     label = 'Navegar',
