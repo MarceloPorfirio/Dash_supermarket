@@ -3,6 +3,11 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import calendar
+import plotly.express as px
+import locale  # Importe o módulo locale
+
+# Configurar o ambiente local para português do Brasil
+locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
 
 choice = st.sidebar.radio(
     label = 'Navegar',
@@ -36,18 +41,18 @@ elif choice == 'Vendas Filial':
         supermercados_mais_vendidos = vendas.groupby('Filial')['Total'].sum().reset_index()
         supermercados_mais_vendidos = supermercados_mais_vendidos.sort_values(by='Total', ascending=False)
         
-        # Dividir a página em duas colunas
-        col1, col2 = st.columns(2)
+        # # Dividir a página em duas colunas
+        # col1, col2 = st.columns(2)
         
-        # Gráfico de barras com as vendas por filial (na primeira coluna)
-        with col1:
-            st.subheader('Gráfico de Vendas por Filial')
-            st.bar_chart(supermercados_mais_vendidos['Total'], width=400, height=300)
+        # # Gráfico de barras com as vendas por filial (na primeira coluna)
+        # with col1:
+        st.subheader('Vendas por Filial')
+        st.bar_chart(supermercados_mais_vendidos['Total'], width=300, height=280)
         
         # Tabela com as vendas por filial (na segunda coluna)
-        with col2:
-            st.subheader('Vendas por Filial')
-            st.table(supermercados_mais_vendidos)
+        # with col2:
+        # st.subheader('Vendas por Filial')
+        st.table(supermercados_mais_vendidos)
 elif choice == 'Vendas Por Categoria':
     with st.container():
         vendas = load_data()
@@ -68,11 +73,11 @@ elif choice == 'Vendas Por Categoria':
         })
         
         # Exibir a tabela com os totais por linha de produtos em português
-        st.table(vendas_por_linha)
+        
         # Gráfico de barras
-        st.subheader('Gráfico')
+        # st.subheader('Gráfico')
         st.bar_chart(vendas_por_linha.set_index('Linha de Produto')['Total'])
-
+        st.table(vendas_por_linha)
 elif choice == 'Formas De Pagamento':
     with st.container():
         vendas = load_data()
@@ -122,6 +127,8 @@ elif choice == 'Clientes Crediário':
 elif choice == 'Compra Por Gênero':
     # Título do aplicativo
     data = load_data()
+
+    
     st.subheader("Análise de Compras por Categoria de Produto")
     data['Product line'] = data['Product line'].map({
                 'Food and beverages': 'Alimentos e Bebidas',
@@ -131,30 +138,43 @@ elif choice == 'Compra Por Gênero':
                 'Home and lifestyle': 'Casa e Estilo de Vida',
                 'Health and beauty': 'Saúde e Beleza'
             })
+    
     # Caixa de seleção para escolher a categoria de produto
     categoria_escolhida = st.selectbox("Escolha a Categoria de Produto:", data["Product line"].unique())
 
     # Filtrar os dados com base na categoria de produto escolhida
     dados_filtrados = data[data["Product line"] == categoria_escolhida]
 
+    
+
     # Calcular o total gasto por gênero
     total_gasto_male = dados_filtrados[dados_filtrados["Gender"] == "Male"]["Total"].sum()
     total_gasto_female = dados_filtrados[dados_filtrados["Gender"] == "Female"]["Total"].sum()
 
-
+    
     # Criar um DataFrame com os resultados
     resultados = pd.DataFrame({
-        "Gênero": ["Male", "Female"],
+        "Gênero": ["Masculino", "Feminino"],
         "Total Gasto": [total_gasto_male, total_gasto_female]
     })
 
     # Exibir os resultados em uma tabela
-    st.write("Resultados:")
+    # st.write("Resultados:")
+    # st.bar_chart(resultados.set_index("Total Gasto").T
+    # Criar um gráfico de barras horizontal com a biblioteca Plotly
+    # st.write(f"Total Gasto por Gênero em {categoria_escolhida}")
+    fig = px.bar(resultados, x="Total Gasto", y="Gênero", orientation="h", text="Total Gasto")
+    fig.update_traces(texttemplate='%{text:.2s}', textposition='inside')
+    fig.update_layout(xaxis_title="Total Gasto", yaxis_title="Gênero",width=600,height=250)
+    st.plotly_chart(fig)
     st.table(resultados)
+
 elif choice == 'Indicadores Mensais':
     with st.container():
         data = load_data()
-        st.subheader('Indicadores Mensais')
+        # Título do aplicativo
+        st.title("Análise de Vendas por Mês")
+
         # Converter a coluna 'Date' para tipo datetime
         data['Date'] = pd.to_datetime(data['Date'])
 
@@ -162,11 +182,11 @@ elif choice == 'Indicadores Mensais':
         data['Month'] = data['Date'].dt.month
         data['Year'] = data['Date'].dt.year
 
-        # Título do aplicativo
-        st.title("Análise de Vendas por Mês")
-
         # Criar um selectbox para escolher o mês
-        nomes_meses = [calendar.month_name[i] for i in range(1, 13)]
+        nomes_meses = [calendar.month_name[i].capitalize() for i in range(1, 13)]  # Nomes dos meses em português
+
+        # Corrigir o nome do mês de março
+        nomes_meses[2] = 'Março'
         mes_selecionado = st.selectbox("Selecione um Mês:", nomes_meses)
 
         # Mapear o nome do mês de volta para o número do mês
@@ -180,4 +200,4 @@ elif choice == 'Indicadores Mensais':
 
         # Exibir o valor total das vendas para o mês selecionado
         st.subheader(f"Total de Vendas para o Mês de {mes_selecionado}:")
-        st.write(f"R${total_vendas_mes:.2f}")
+        st.write(f"R$ {total_vendas_mes:.2f}")
