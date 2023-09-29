@@ -1,4 +1,4 @@
-# from matplotlib.pyplot import subplots
+
 import streamlit as st
 import pandas as pd
 import calendar
@@ -8,6 +8,7 @@ import plotly.graph_objects as go
 
 # # Configurar o ambiente local para português do Brasil
 # locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
+
 
 choice = st.sidebar.radio(
     label = 'Navegar',
@@ -23,11 +24,12 @@ def load_data():
 
 if choice == 'Inicio':
     with st.container():
-        st.write('Filtrar dados de um supermercado')
-        st.title('Dashboard :blue[Supermarket] :sunglasses:')
-        st.write('Informações sobre dados de um supermercado')
-        st.write('Acesso ao código? [Clique aqui](https://github.com/MarceloPorfirio/Dash_supermarket)')
-        st.write('Fonte arquivo csv: [Clique aqui](https://www.kaggle.com/datasets/aungpyaeap/supermarket-sales)')
+        st.title('Dashboard :blue[Supermarket] :shopping_trolley:')
+        st.subheader('Informações organizadas sobre dados de um supermercado.')
+        st.caption('As informações consistem de um arquivos de dados fictícios [Fonte](https://www.kaggle.com/datasets/aungpyaeap/supermarket-sales)')
+        st.caption('Acesso ao código? [Clique aqui](https://github.com/MarceloPorfirio/Dash_supermarket)')
+        st.markdown('<p style="font-family: \'Arial\', sans-serif; color: blue; font-size: 20px;">Exemplo de personalização com html</p>',unsafe_allow_html=True )
+        
 elif choice == 'Vendas Filial':
     with st.container():
        
@@ -41,17 +43,11 @@ elif choice == 'Vendas Filial':
         supermercados_mais_vendidos = vendas.groupby('Filial')['Total'].sum().reset_index()
         supermercados_mais_vendidos = supermercados_mais_vendidos.sort_values(by='Total', ascending=False)
         
-        # # Dividir a página em duas colunas
-        # col1, col2 = st.columns(2)
-        
-        # # Gráfico de barras com as vendas por filial (na primeira coluna)
-        # with col1:
         st.subheader('Vendas por Filial')
         st.bar_chart(supermercados_mais_vendidos['Total'], width=300, height=280)
         
         # Tabela com as vendas por filial (na segunda coluna)
-        # with col2:
-        # st.subheader('Vendas por Filial')
+
         st.table(supermercados_mais_vendidos)
 elif choice == 'Vendas Por Categoria':
     with st.container():
