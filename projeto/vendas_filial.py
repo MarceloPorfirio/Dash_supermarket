@@ -13,7 +13,8 @@ import plotly.graph_objects as go
 choice = st.sidebar.radio(
     label = 'Navegar',
     options = ('Inicio','Vendas Filial','Vendas Por Categoria', 
-               'Formas De Pagamento','Clientes Crediário','Compra Por Gênero','Indicadores Mensais'),
+               'Formas De Pagamento','Clientes Crediário','Compra Por Gênero','Indicadores Mensais',
+               'Avaliação de Produtos'),
     
 )
 
@@ -199,3 +200,20 @@ elif choice == 'Indicadores Mensais':
         # Exibir o valor total das vendas para o mês selecionado
         st.subheader(f"Total de Vendas para o Mês de {mes_selecionado}:")
         st.header(f"R$ {total_vendas_mes:,.2f}".replace(',', '_').replace('.', ',').replace('_', '.'))
+elif choice == 'Avaliação de Produtos':
+    with st.container():
+        data = load_data()
+        st.subheader('Rank de avaliação de produtos')
+        # Agrupar os dados por linha de produto e calcular a média das avaliações
+        avaliacoes_por_categoria = data.groupby('Product line')['Rating'].mean().reset_index()
+
+        # Renomear colunas
+        avaliacoes_por_categoria.rename(columns={'Rating': 'Avaliação Média'}, inplace=True)
+
+        # Classificar as categorias com base na avaliação média
+        avaliacoes_por_categoria = avaliacoes_por_categoria.sort_values(by='Avaliação Média', ascending=False)
+
+        #
+
+        # Exibir a tabela com o rank de avaliações por categoria
+        st.table(avaliacoes_por_categoria)   
