@@ -10,6 +10,7 @@ import plotly.graph_objects as go
 # locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
 
 
+
 choice = st.sidebar.radio(
     label = 'Navegar',
     options = ('Inicio','Vendas Filial','Vendas Por Categoria', 
@@ -43,9 +44,22 @@ elif choice == 'Vendas Filial':
         # Tabela com as filiais que mais venderam em ordem decrescente
         supermercados_mais_vendidos = vendas.groupby('Filial')['Total'].sum().reset_index()
         supermercados_mais_vendidos = supermercados_mais_vendidos.sort_values(by='Total', ascending=False)
-        
+
+        # Mapear cada filial para uma cor específica
+        colors = {'Filial A': 'blue', 'Filial B': 'green', 'Filial C': 'red'}
+
+        # Gráfico de barras horizontais com cores diferentes
+        fig = px.bar(supermercados_mais_vendidos, x='Total', y='Filial', orientation='h',
+                 color='Filial',
+                 labels={'Total': 'Total de Vendas', 'Filial': 'Filial'})
+
+        # Ajustar layout do gráfico
+        fig.update_layout(width=600,height=250, margin=dict(l=0, r=0, t=0, b=0))
+
+       
         st.subheader('Vendas por Filial')
-        st.bar_chart(supermercados_mais_vendidos['Total'], width=300, height=280)
+         # Exibir o gráfico no Streamlit
+        st.plotly_chart(fig)
         
         # Tabela com as vendas por filial (na segunda coluna)
 
@@ -69,10 +83,8 @@ elif choice == 'Vendas Por Categoria':
             'Health and beauty': 'Saúde e Beleza'
         })
         
-        # Exibir a tabela com os totais por linha de produtos em português
         
         # Gráfico de barras
-        # st.subheader('Gráfico')
         st.bar_chart(vendas_por_linha.set_index('Linha de Produto')['Total'])
         st.table(vendas_por_linha)
 elif choice == 'Formas De Pagamento':
@@ -80,8 +92,6 @@ elif choice == 'Formas De Pagamento':
         vendas = load_data()
         # Mostrar formas de pagamento mais utilizadas
         st.subheader('Formas de pagamento mais utilizadas')
-        
-
         forma_pagamento = vendas.groupby('Payment')['Total'].sum().reset_index()
         forma_pagamento.rename(columns={'Payment':'Forma de Pagamento'},inplace=True)
         forma_pagamento = forma_pagamento.sort_values(by='Total', ascending=False)
@@ -141,7 +151,6 @@ elif choice == 'Compra Por Gênero':
     # Filtrar os dados com base na categoria de produto escolhida
     dados_filtrados = data[data["Product line"] == categoria_escolhida]
 
-    
 
     # Calcular o total gasto por gênero
     total_gasto_male = dados_filtrados[dados_filtrados["Gender"] == "Male"]["Total"].sum()
@@ -154,11 +163,6 @@ elif choice == 'Compra Por Gênero':
         "Total Gasto": [total_gasto_male, total_gasto_female]
     })
 
-    # Exibir os resultados em uma tabela
-    # st.write("Resultados:")
-    # st.bar_chart(resultados.set_index("Total Gasto").T
-    # Criar um gráfico de barras horizontal com a biblioteca Plotly
-    # st.write(f"Total Gasto por Gênero em {categoria_escolhida}")
     fig = px.bar(resultados, x="Total Gasto", y="Gênero", orientation="h", text="Total Gasto")
     fig.update_traces(texttemplate='%{text:.2s}', textposition='inside')
     fig.update_layout(xaxis_title="Total Gasto", yaxis_title="Gênero",width=600,height=250)
@@ -168,7 +172,7 @@ elif choice == 'Compra Por Gênero':
 elif choice == 'Indicadores Mensais':
     with st.container():
         data = load_data()
-        # Título do aplicativo
+      
         st.title("Análise de Vendas por Mês")
 
         # Converter a coluna 'Date' para tipo datetime
@@ -203,17 +207,29 @@ elif choice == 'Indicadores Mensais':
 elif choice == 'Avaliação de Produtos':
     with st.container():
         data = load_data()
+        data['Product line'] = data['Product line'].map({
+                'Food and beverages': 'Alimentos e Bebidas',
+                'Fashion accessories': 'Acessórios de Moda',
+                'Electronic accessories': 'Acessórios Eletrônicos',
+                'Sports and travel': 'Esportes e Viagem',
+                'Home and lifestyle': 'Casa e Estilo de Vida',
+                'Health and beauty': 'Saúde e Beleza'
+            })
         st.subheader('Rank de avaliação de produtos')
         # Agrupar os dados por linha de produto e calcular a média das avaliações
         avaliacoes_por_categoria = data.groupby('Product line')['Rating'].mean().reset_index()
+        avaliacoes_por_categoria.rename(columns={'Product line': 'Linha de produto'}, inplace=True)
 
         # Renomear colunas
-        avaliacoes_por_categoria.rename(columns={'Rating': 'Avaliação Média'}, inplace=True)
+        avaliacoes_por_categoria.rename(columns={'Rating': 'Avaliação por categoria'}, inplace=True)
+
+        # Suponha que 'avaliacoes_por_categoria' seja um DataFrame do Pandas e a coluna 'Avaliação Média' seja um float
+        avaliacoes_por_categoria['Avaliação por categoria'] = avaliacoes_por_categoria['Avaliação por categoria'].apply(lambda x:f'{x:.2f}')
 
         # Classificar as categorias com base na avaliação média
-        avaliacoes_por_categoria = avaliacoes_por_categoria.sort_values(by='Avaliação Média', ascending=False)
+        avaliacoes_por_categoria = avaliacoes_por_categoria.sort_values(by='Avaliação por categoria', ascending=False)
 
-        #
+        #   
 
         # Exibir a tabela com o rank de avaliações por categoria
         st.table(avaliacoes_por_categoria)   
