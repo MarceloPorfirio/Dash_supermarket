@@ -83,13 +83,11 @@ elif choice == 'Vendas Por Categoria':
             'Health and beauty': 'Saúde e Beleza'
         })
         
-                # Criar um gráfico de pizza com Plotly Express
-        fig = px.pie(vendas_por_linha, names='Linha de Produto', values='Total', title='Vendas por Categoria')
-
+        # Criar um gráfico de pizza com Plotly Express
+        fig = px.pie(vendas_por_linha, names='Linha de Produto', values='Total')
+        fig.update_layout(width=800,height=350)
         # Exibir o gráfico
         st.plotly_chart(fig)
-            
-        
         
         st.table(vendas_por_linha)
 elif choice == 'Formas De Pagamento':
@@ -144,14 +142,13 @@ elif choice == 'Clientes Crediário':
         
         # Criar um gráfico de pizza
         fig = go.Figure(data=[go.Pie(labels=['Membros', 'Clientes Normais'], values=[members_count, normal_count],hole=0.3)])
-        fig.update_layout(width=700,height=350)
+        fig.update_layout(width=600,height=400)
         # Definir as cores das fatias
         colors = ['blue', 'orange']
         fig.update_traces(marker=dict(colors=colors))
 
         # Exibir o gráfico de pizza no Streamlit
         st.title("Clientes Crediário")
-        st.subheader('Membros Ativos vs Clientes Normais')
         st.plotly_chart(fig)
         st.table(resultados)
 
@@ -198,7 +195,7 @@ elif choice == 'Indicadores Mensais':
     with st.container():
         data = load_data()
       
-        st.title("Análise de Vendas por Mês")
+        st.title("Vendas por Mês")
 
         # Converter a coluna 'Date' para tipo datetime
         data['Date'] = pd.to_datetime(data['Date'])
