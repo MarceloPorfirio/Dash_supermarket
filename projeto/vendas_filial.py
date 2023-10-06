@@ -83,9 +83,14 @@ elif choice == 'Vendas Por Categoria':
             'Health and beauty': 'Saúde e Beleza'
         })
         
+                # Criar um gráfico de pizza com Plotly Express
+        fig = px.pie(vendas_por_linha, names='Linha de Produto', values='Total', title='Vendas por Categoria')
+
+        # Exibir o gráfico
+        st.plotly_chart(fig)
+            
         
-        # Gráfico de barras
-        st.bar_chart(vendas_por_linha.set_index('Linha de Produto')['Total'])
+        
         st.table(vendas_por_linha)
 elif choice == 'Formas De Pagamento':
     with st.container():
@@ -100,7 +105,20 @@ elif choice == 'Formas De Pagamento':
             'Ewallet': 'Crediário',
             'Credit card': 'Cartão de Crédito'
         })
-        st.bar_chart(forma_pagamento['Total'],width=300,height=300)
+        # Mapear cada forma de pagamento para uma cor específica
+        colors = {'Dinheiro': 'blue', 'Crediário': 'green', 'Cartão de Crédito': 'red'}
+
+        # Gráfico de barras horizontais com cores diferentes
+        fig = px.bar(forma_pagamento, x='Total', y='Forma de Pagamento', orientation='h',
+                    color='Forma de Pagamento',
+                    color_discrete_map=colors,  # Usar as cores mapeadas
+                    labels={'Total': 'Total de Vendas', 'Forma de Pagamento': 'Forma de Pagamento'})
+
+        # Ajustar layout do gráfico
+        fig.update_layout(width=600, height=250, margin=dict(l=0, r=0, t=0, b=0))
+
+        # Exibir o gráfico
+        st.plotly_chart(fig)
         st.table(forma_pagamento)
 elif choice == 'Clientes Crediário':
     with st.container():
@@ -117,10 +135,16 @@ elif choice == 'Clientes Crediário':
         percent_members = (members_count / total_customers) * 100
         percent_normal = (normal_count / total_customers) * 100
 
+        # Criar um DataFrame com os resultados
+        resultados = pd.DataFrame({
+            "Rótulo": ["Member", "Normal"],
+            "Quantidade": [members_count, normal_count]
+        })
+
         
         # Criar um gráfico de pizza
         fig = go.Figure(data=[go.Pie(labels=['Membros', 'Clientes Normais'], values=[members_count, normal_count],hole=0.3)])
-
+        fig.update_layout(width=700,height=350)
         # Definir as cores das fatias
         colors = ['blue', 'orange']
         fig.update_traces(marker=dict(colors=colors))
@@ -129,6 +153,7 @@ elif choice == 'Clientes Crediário':
         st.title("Clientes Crediário")
         st.subheader('Membros Ativos vs Clientes Normais')
         st.plotly_chart(fig)
+        st.table(resultados)
 
 elif choice == 'Compra Por Gênero':
     # Título do aplicativo
