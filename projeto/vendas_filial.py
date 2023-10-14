@@ -4,21 +4,29 @@ import pandas as pd
 import calendar
 import plotly.express as px
 import plotly.graph_objects as go
-# import locale  # Importe o módulo locale
+
 
 # # Configurar o ambiente local para português do Brasil
 # locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
+options = ('Inicio','Vendas Filial','Vendas Por Categoria', 
+               'Formas De Pagamento','Clientes Crediário','Compra Por Gênero','Indicadores Mensais',
+               'Avaliação de Produtos','Movimento Diário','Renda Bruta')
 
+# Separar 'Inicio' do restante das opções
+inicio, *restante = options
 
+# Organizar as opções restantes em ordem alfabética
+opcoes_ordenadas = [inicio, *sorted(restante)]
+
+# Adicionando um rótulo HTML para estilizar o texto da barra lateral
+st.sidebar.markdown("<h1 style='text-align: center;'>Navegar</h1>", unsafe_allow_html=True)
 
 choice = st.sidebar.radio(
-    label = 'Navegar',
-    options = ('Inicio','Vendas Filial','Vendas Por Categoria', 
-               'Formas De Pagamento','Clientes Crediário','Compra Por Gênero','Indicadores Mensais',
-               'Avaliação de Produtos'),
+    label = '',
+    options = opcoes_ordenadas,
     
 )
-
+    
 
 def load_data():
     data = pd.read_csv("supermarket_sales - Sheet1.csv")
@@ -27,10 +35,10 @@ def load_data():
 if choice == 'Inicio':
     with st.container():
         st.title('Dashboard :blue[Supermarket] :shopping_trolley:')
-        st.subheader('Informações organizadas sobre dados de um supermercado.')
-        st.caption('As informações consistem de um arquivos de dados fictícios [Fonte](https://www.kaggle.com/datasets/aungpyaeap/supermarket-sales)')
+        st.markdown('<h2 style="font-size: 25px;">Informações organizadas referente aos dados <br>de uma rede de supermercados.</h2>', unsafe_allow_html=True)
+        st.markdown('<h2 style="font-size: 25px;">Você pode navegar pelo menu lateral,<br>encontre as informações desejadas na base de dados.</h2>', unsafe_allow_html=True)
+        st.caption('As informações consistem de um arquivos de dados fictícios: [Fonte](https://www.kaggle.com/datasets/aungpyaeap/supermarket-sales)')
         st.caption('Acesso ao código? [Clique aqui](https://github.com/MarceloPorfirio/Dash_supermarket)')
-        st.markdown('<p style="font-family: \'Arial\', sans-serif; color: blue; font-size: 20px;">Exemplo de personalização com html</p>',unsafe_allow_html=True )
         
 elif choice == 'Vendas Filial':
     with st.container():
@@ -57,7 +65,7 @@ elif choice == 'Vendas Filial':
         fig.update_layout(width=600,height=250, margin=dict(l=0, r=0, t=0, b=0))
 
        
-        st.subheader('Vendas por Filial')
+        st.subheader('Venda Total Por Filial')
          # Exibir o gráfico no Streamlit
         st.plotly_chart(fig)
         
@@ -204,10 +212,14 @@ elif choice == 'Indicadores Mensais':
         data['Month'] = data['Date'].dt.month
         data['Year'] = data['Date'].dt.year
 
-        # Criar um selectbox para escolher o mês
-        nomes_meses = [calendar.month_name[i].capitalize() for i in range(1, 13)]  # Nomes dos meses em português
+        # Criar um seletor para escolher a filial
+        filiais_ordenadas = sorted(data['Branch'].unique())
+        filial_selecionada = st.selectbox("Selecione uma Filial:", filiais_ordenadas)
 
-        # Modificar os nomes dos meses para portugues
+        # Filtrar os dados pela filial selecionada
+        data_filial = data[data['Branch'] == filial_selecionada]
+
+        # Criar um selectbox para escolher o mês
         nomes_meses = [
             'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
             'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
@@ -217,15 +229,17 @@ elif choice == 'Indicadores Mensais':
         # Mapear o nome do mês de volta para o número do mês
         mes_numero = {v: k for k, v in enumerate(nomes_meses, start=1)}
 
-        # Filtrar os dados pelo mês selecionado
-        vendas_por_mes = data[data['Month'] == mes_numero[mes_selecionado]]
+        # Filtrar os dados pela filial e pelo mês selecionado
+        vendas_por_mes = data_filial[data_filial['Month'] == mes_numero[mes_selecionado]]
 
         # Calcular o valor total das vendas para o mês selecionado
         total_vendas_mes = vendas_por_mes['Total'].sum()
 
         # Exibir o valor total das vendas para o mês selecionado
-        st.subheader(f"Total de Vendas para o Mês de {mes_selecionado}:")
+        st.subheader(f"Total de Vendas para o Mês de {mes_selecionado} na Filial {filial_selecionada}:")
         st.header(f"R$ {total_vendas_mes:,.2f}".replace(',', '_').replace('.', ',').replace('_', '.'))
+
+
 elif choice == 'Avaliação de Produtos':
     with st.container():
         data = load_data()
@@ -238,6 +252,7 @@ elif choice == 'Avaliação de Produtos':
                 'Health and beauty': 'Saúde e Beleza'
             })
         st.subheader('Rank de avaliação de produtos')
+        st.write(':star:'* 5)
         # Agrupar os dados por linha de produto e calcular a média das avaliações
         avaliacoes_por_categoria = data.groupby('Product line')['Rating'].mean().reset_index()
         avaliacoes_por_categoria.rename(columns={'Product line': 'Linha de produto'}, inplace=True)
@@ -254,4 +269,63 @@ elif choice == 'Avaliação de Produtos':
         #   
 
         # Exibir a tabela com o rank de avaliações por categoria
-        st.table(avaliacoes_por_categoria)   
+        st.table(avaliacoes_por_categoria)  
+elif choice == "Movimento Diário":
+      with st.container():
+        vendas = load_data()
+        # Converter a coluna 'Date' para tipo datetime
+        vendas['Date'] = pd.to_datetime(vendas['Date'])
+
+        # Adicionar colunas de dia, mês e ano
+        vendas['Day'] = vendas['Date'].dt.day
+        vendas['Month'] = vendas['Date'].dt.month
+        vendas['Year'] = vendas['Date'].dt.year
+        st.subheader('Selecione a Filial')
+        # Criar um select box para escolher a filial
+        filial_escolhida = st.selectbox("", vendas["Branch"].unique())
+
+        # Filtrar os dados com base na filial escolhida
+        dados_filtrados = vendas[vendas["Branch"] == filial_escolhida]
+
+        # Agrupar os dados por dia e calcular o total diário de vendas
+        total_diario = dados_filtrados.groupby('Day')['Total'].sum().reset_index()
+
+        # Criar um gráfico de linha dinâmico para o total diário de vendas
+        fig = px.line(total_diario, x='Day', y='Total', title=f'Total Diário de Vendas - Filial {filial_escolhida}',
+                    labels={'Total': 'Total de Vendas', 'Day': 'Dia'})
+
+        # Ajustar layout do gráfico
+        fig.update_layout(width=700, height=400, margin=dict(l=0, r=0, t=30, b=0))
+
+        # Exibir o gráfico no Streamlit
+        st.plotly_chart(fig)
+elif choice == 'Renda Bruta':
+    # Carregar os dados do arquivo CSV
+    vendas = load_data()
+
+    # Renomear a coluna 'Branch' para 'Filial'
+    vendas = vendas.rename(columns={'Branch':'Filial'})
+
+    # Tabela com as filiais que mais venderam em ordem decrescente
+    supermercados_mais_vendidos = vendas.groupby('Filial')['gross income'].sum().reset_index()
+    supermercados_mais_vendidos = supermercados_mais_vendidos.sort_values(by='gross income', ascending=False)
+
+    # Mapear cada filial para uma cor específica
+    colors = {'Filial A': 'yellow', 'Filial B': 'green', 'Filial C': 'red'}
+
+    # Gráfico de barras horizontais com cores diferentes
+    fig = px.bar(supermercados_mais_vendidos, x='gross income', y='Filial', orientation='h',
+                color='Filial',
+                 color_discrete_map=colors,
+                labels={'gross income': 'Renda Bruta', 'Filial': 'Filial'})
+
+    # Ajustar layout do gráfico
+    fig.update_layout(width=600, height=250, margin=dict(l=0, r=0, t=0, b=0))
+
+    # Exibir o gráfico no Streamlit
+    st.subheader('Renda Bruta Por Filial')
+    st.plotly_chart(fig)
+    supermercados_mais_vendidos = supermercados_mais_vendidos.rename(columns={'gross income':'Renda Bruta'})
+    # Substituir o separador de milhar e decimal na tabela
+    
+    st.table(supermercados_mais_vendidos)
