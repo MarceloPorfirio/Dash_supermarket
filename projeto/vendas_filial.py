@@ -22,11 +22,11 @@ opcoes_ordenadas = [inicio, *sorted(restante)]
 st.sidebar.markdown("<h1 style='text-align: center;'>Navegar</h1>", unsafe_allow_html=True)
 
 choice = st.sidebar.radio(
-    label = '',
+    label = 'Selecione uma opção',
     options = opcoes_ordenadas,
     
 )
-    
+
 
 def load_data():
     data = pd.read_csv("supermarket_sales - Sheet1.csv")
@@ -35,8 +35,8 @@ def load_data():
 if choice == 'Inicio':
     with st.container():
         st.title('Dashboard :blue[Supermarket] :shopping_trolley:')
-        st.markdown('<h2 style="font-size: 25px;">Informações organizadas referente aos dados <br>de uma rede de supermercados.</h2>', unsafe_allow_html=True)
-        st.markdown('<h2 style="font-size: 25px;">Você pode navegar pelo menu lateral,<br>encontre as informações desejadas na base de dados.</h2>', unsafe_allow_html=True)
+        st.markdown('<h2 style="font-size: 25px;">Informações organizadas acerca dos dados <br>de uma rede de supermercados.</h2>', unsafe_allow_html=True)
+        st.markdown('<h3 style="font-size: 20px;">Você pode navegar pelo menu lateral,<br>encontre as informações desejadas na base de dados.</h3>', unsafe_allow_html=True)
         st.caption('As informações consistem de um arquivos de dados fictícios: [Fonte](https://www.kaggle.com/datasets/aungpyaeap/supermarket-sales)')
         st.caption('Acesso ao código? [Clique aqui](https://github.com/MarceloPorfirio/Dash_supermarket)')
         
